@@ -2,17 +2,24 @@ from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 import os
+import time
 
 
 def main():
-    '''
-    # Get plaintext
-    plaintext = "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"
-    #print(len(plaintext))
-    '''
+    # Menu
+    fileChoice = input("Please choose which file you would like to encrypt and decrypt: \n(S)mall\n(L)arge\n")
 
-    inputFile = "large.txt"
-    outputFile = "lar.encoded"
+    if (fileChoice == 'L' or fileChoice == 'l'):
+        print("Large file choosen")
+        inputFile = "large.txt"
+        outputFile = "large.encoded"
+        keySize = int(input("What size key would you like to use?\n16\n32\n"))
+
+    else:
+        print("Small file choosen")
+        inputFile = "small.txt"
+        outputFile = "small.encoded"
+        keySize = int(input("What size key would you like to use?\n16\n32\n"))
 
     with open(inputFile, 'rb') as f:
         plaintext = f.read()
@@ -21,8 +28,15 @@ def main():
     paddedMessage = padMessage(plaintext)
     #print(len(paddedMessage))
 
-    # Encrypt Message
-    encryptMessage(paddedMessage)
+    # Run for a certain amount of time
+    timerEnd = time.time() + 1
+    counter = 0
+    while time.time() < timerEnd:
+         # Encrypt Message
+        encryptMessage(paddedMessage, keySize)
+        counter = counter + 1
+    
+    print("The message was encrypted and decrypted " + str(counter) + " times")
 
 
 def padMessage(message):
@@ -30,9 +44,9 @@ def padMessage(message):
         message = message + " "
     return message
 
-def encryptMessage(message):
+def encryptMessage(message, keySize):
     backend = default_backend()
-    key = os.urandom(16)
+    key = os.urandom(keySize)
     iv = os.urandom(16)
     cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=backend)
     encryptor = cipher.encryptor()
